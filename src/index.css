@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand Colors */
+  --color-cloud: #f8fafc;    /* A soft, airy off-white */
+  --color-oat: #c5a985;      /* A warm, toasted oat brown */
+  --color-sky: #7dd3fc;      /* A clear, bright sky blue */
+  
+  /* You can also add deeper shades for contrast if you like */
+  --color-oat-dark: #91785d; 
+  --color-sky-dark: #0ea5e9;
+}
