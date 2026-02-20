@@ -22,7 +22,7 @@ export default function Footer() {
               <a href="#" className="text-gray-300 hover:text-sky transition">
                 <Linkedin size={24} />
               </a>
-              <a href="mailto:hello@cloudoat.com" className="text-gray-300 hover:text-sky transition">
+              <a href="mailto:3128065003xshi@gmail.com" className="text-gray-300 hover:text-sky transition">
                 <Mail size={24} />
               </a>
             </div>
@@ -46,7 +46,7 @@ export default function Footer() {
             <ul className="space-y-3 text-gray-300">
               <li className="flex items-center gap-3">
                 <Mail size={18} />
-                <a href="mailto:hello@cloudoat.com">hello@cloudoat.com</a>
+                <a href="mailto:3128065003xshi@gmail.com">3128065003xshi@gmail.com</a>
               </li>
               <li>Chicago, IL, USA</li>
             </ul>
@@ -84,7 +84,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="mt-16 pt-8 border-t border-gray-700 text-center text-gray-400 text-sm">
-          © {new Date().getFullYear()} Cloud Oat. All rights reserved.
+          © {new Date().getFullYear()} Cloud Oat. All rights reserved. 
         </div>
       </div>
     </footer>

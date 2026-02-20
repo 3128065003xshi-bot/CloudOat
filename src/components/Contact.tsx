@@ -203,8 +203,8 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">Email</p>
-                  <a href="mailto:hello@cloudoat.com" className="text-sky hover:text-sky-dark transition">
-                    hello@cloudoat.com
+                  <a href="mailto:3128065003xshi@gmail.com" className="text-sky hover:text-sky-dark transition">
+                    3128065003xshi@gmail.com
                   </a>
                 </div>
               </div>
