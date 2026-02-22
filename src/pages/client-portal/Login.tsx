@@ -1,8 +1,7 @@
 // src/pages/client-portal/Login.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { dynamoClient } from '../../lib/dynamoClient';
-import { GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { config } from '../../config/env';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -12,50 +11,36 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  e.preventDefault();
+  setError('');
+  setLoading(true);
 
-    try {
-      const command = new GetItemCommand({
-        TableName: "cloudOat_client",
-        Key: {
-          PK: { S: `CLIENT#${email.trim()}` },
-          SK: { S: "PROFILE" },
-        },
-      });
+      try {
+        const res = await fetch(`${config.apiUrl}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email.trim(), password }),
+        });
 
-      const response = await dynamoClient.send(command);
+        const data = await res.json();
 
-      if (!response.Item) {
-        setError('User not found. Please check your email.');
+        if (!res.ok) {
+          setError(data.error || 'Login failed');
+          return;
+        }
+
+        // Success – save JWT or session token
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userEmail', email.trim());
+        // localStorage.setItem('idToken', data.tokens.idToken); // later with Cognito
+        navigate('/client-portal');
+      } catch (err) {
+        console.error(err);
+        setError('Network error. Please try again.');
+      } finally {
         setLoading(false);
-        return;
       }
-
-      const storedPassword = response.Item.password?.S;
-
-      if (!storedPassword || storedPassword !== password) {
-        setError('Incorrect password.');
-        setLoading(false);
-        return;
-      }
-
-      // Success
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userEmail', email.trim());
-      navigate('/client-portal');
-    } catch (err: any) {
-      console.error("DynamoDB login error:", err);
-      if (err.name === 'AccessDeniedException') {
-        setError('Permission denied. Check your AWS credentials or IAM policy.');
-      } else {
-        setError('Something went wrong. Please try again later.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky/10 via-cloud to-oat/10 p-6">
