@@ -7,4 +7,13 @@ export default defineConfig({
     react(),
     tailwindcss(), // 2. Add it here
   ],
+  server: {
+    proxy: {
+      '/dynamodb': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/dynamodb/, ''),
+      },
+    },
+  },
 })

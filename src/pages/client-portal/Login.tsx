@@ -1,5 +1,8 @@
+// src/pages/client-portal/Login.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { dynamoClient } from '../../lib/dynamoClient';
+import { GetItemCommand } from "@aws-sdk/client-dynamodb";
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -13,18 +16,45 @@ export default function Login() {
     setError('');
     setLoading(true);
 
-    // Simple mock authentication (replace with real Cognito/Supabase later)
-    await new Promise(resolve => setTimeout(resolve, 800)); // fake network delay
+    try {
+      const command = new GetItemCommand({
+        TableName: "cloudOat_client",
+        Key: {
+          PK: { S: `CLIENT#${email.trim()}` },
+          SK: { S: "PROFILE" },
+        },
+      });
 
-    if (email.trim() === 'test@test.com' && password === 'test12345') {
+      const response = await dynamoClient.send(command);
+
+      if (!response.Item) {
+        setError('User not found. Please check your email.');
+        setLoading(false);
+        return;
+      }
+
+      const storedPassword = response.Item.password?.S;
+
+      if (!storedPassword || storedPassword !== password) {
+        setError('Incorrect password.');
+        setLoading(false);
+        return;
+      }
+
+      // Success
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('userEmail', email.trim());
       navigate('/client-portal');
-    } else {
-      setError('Invalid email or password. Use test@test.com / test12345');
+    } catch (err: any) {
+      console.error("DynamoDB login error:", err);
+      if (err.name === 'AccessDeniedException') {
+        setError('Permission denied. Check your AWS credentials or IAM policy.');
+      } else {
+        setError('Something went wrong. Please try again later.');
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -38,7 +68,7 @@ export default function Login() {
           <p className="text-gray-600 mt-2">Client Portal</p>
         </div>
 
-        {/* New invite-only note */}
+        {/* Invite-only note */}
         <div className="bg-oat/10 border border-oat/30 text-oat-dark px-6 py-4 rounded-xl mb-8 text-center font-medium">
           <strong>Important:</strong> Our client portal is currently <strong>invite-only</strong>.  
           Please contact us to set up your account.
