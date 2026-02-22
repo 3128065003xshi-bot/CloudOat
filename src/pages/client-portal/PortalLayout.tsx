@@ -19,7 +19,6 @@ export default function PortalLayout() {
   const location = useLocation();
 
   useEffect(() => {
-    // Simple auth check (replace with real Cognito check later)
     if (localStorage.getItem('isLoggedIn') !== 'true') {
       navigate('/login');
     }
@@ -32,30 +31,33 @@ export default function PortalLayout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-cloud">
       {/* Left Sidebar */}
-      <aside className="w-72 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-8 border-b">
-          <h1 className="text-2xl font-bold">
+      <aside className="w-72 bg-white border-r border-gray-200/80 flex flex-col shadow-sm">
+        {/* Header */}
+        <div className="p-8 border-b border-gray-200">
+          <h1 className="text-3xl font-extrabold tracking-tight">
             <span className="text-sky">Cloud</span>
             <span className="text-oat">Oat</span>
           </h1>
-          <p className="text-sm text-gray-500 mt-1">Client Portal</p>
+          <p className="text-sm text-gray-500 mt-1.5">Client Portal</p>
         </div>
 
-        <nav className="flex-1 px-4 py-6 space-y-1">
+        {/* Navigation */}
+        <nav className="flex-1 px-5 py-8 space-y-1.5">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
+            const baseClasses = "group flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-200 font-medium text-lg";
 
             if (item.isLogout) {
               return (
                 <button
                   key="logout"
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-4 px-5 py-4 text-red-600 hover:bg-red-50 rounded-xl transition font-medium"
+                  className={`${baseClasses} text-red-600 hover:bg-red-50/80 hover:text-red-700`}
                 >
-                  <LogOut size={22} />
-                  <span>Logout</span>
+                  <LogOut size={24} className="group-hover:scale-110 transition-transform" />
+                  <span>{item.label}</span>
                 </button>
               );
             }
@@ -63,29 +65,36 @@ export default function PortalLayout() {
             return (
               <Link
                 key={item.label}
-                to={item.path ?? '/client-portal'}
-                className={`flex items-center gap-4 px-5 py-4 rounded-xl transition font-medium ${
+                to={item.path ?? '/client-portal'}   // fallback if somehow undefined
+                className={`${baseClasses} ${
                   isActive
-                    ? 'bg-sky/10 text-sky font-semibold'
-                    : 'text-gray-700 hover:bg-sky/5 hover:text-sky'
+                    ? 'bg-sky/10 text-sky-dark font-semibold shadow-sm'
+                    : 'text-oat-dark hover:bg-sky/5 hover:text-sky-dark'
                 }`}
               >
-                <item.icon size={22} />
+                <item.icon
+                  size={24}
+                  className={`transition-colors ${isActive ? 'text-sky-dark' : 'text-oat'}`}
+                />
                 <span>{item.label}</span>
+                {isActive && (
+                  <div className="ml-auto w-2 h-2 rounded-full bg-sky-dark" />
+                )}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-6 border-t text-sm text-gray-500">
+        {/* Footer info */}
+        <div className="p-6 border-t border-gray-200 text-sm text-gray-600">
           Logged in as:<br />
-          <span className="font-medium text-gray-800">
+          <span className="font-medium text-oat-dark">
             {localStorage.getItem('userEmail') || 'test@test.com'}
           </span>
         </div>
       </aside>
 
-      {/* Main content – different page loads here */}
+      {/* Main content area */}
       <main className="flex-1 overflow-auto bg-white">
         <Outlet />
       </main>
