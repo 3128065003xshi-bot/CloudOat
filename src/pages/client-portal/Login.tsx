@@ -1,7 +1,6 @@
-// src/pages/client-portal/Login.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { config } from '../../config/env';
+import { getClientProfile } from '../../lib/dynamoClient';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -11,36 +10,33 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError('');
-  setLoading(true);
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-      try {
-        const res = await fetch(`${config.apiUrl}/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email.trim(), password }),
-        });
+    try {
+      const profile = await getClientProfile(email.trim());
 
-        const data = await res.json();
-
-        if (!res.ok) {
-          setError(data.error || 'Login failed');
-          return;
-        }
-
-        // Success – save JWT or session token
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userEmail', email.trim());
-        // localStorage.setItem('idToken', data.tokens.idToken); // later with Cognito
-        navigate('/client-portal');
-      } catch (err) {
-        console.error(err);
-        setError('Network error. Please try again.');
-      } finally {
-        setLoading(false);
+      if (!profile) {
+        setError('User not found. Please check your email.');
+        return;
       }
-    };
+
+      if (profile.password !== password) {
+        setError('Incorrect password.');
+        return;
+      }
+
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userEmail', email.trim());
+      navigate('/client-portal');
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Failed to connect to database. Check console.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky/10 via-cloud to-oat/10 p-6">
@@ -50,10 +46,9 @@ export default function Login() {
             <span className="text-sky">Cloud</span>
             <span className="text-oat">Oat</span>
           </h1>
-          <p className="text-gray-600 mt-2">Client Portal</p>
+          <p className="text-gray-600 mt-2">Client Portal Login</p>
         </div>
 
-        {/* Invite-only note */}
         <div className="bg-oat/10 border border-oat/30 text-oat-dark px-6 py-4 rounded-xl mb-8 text-center font-medium">
           <strong>Important:</strong> Our client portal is currently <strong>invite-only</strong>.  
           Please contact us to set up your account.
@@ -74,7 +69,7 @@ export default function Login() {
               id="email"
               type="email"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="test@test.com"
               required
               className="w-full px-5 py-4 rounded-xl border border-gray-300 focus:border-sky focus:ring-2 focus:ring-sky/30 outline-none transition"
@@ -89,7 +84,7 @@ export default function Login() {
               id="password"
               type="password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="•••••••••••"
               required
               className="w-full px-5 py-4 rounded-xl border border-gray-300 focus:border-sky focus:ring-2 focus:ring-sky/30 outline-none transition"
@@ -100,19 +95,10 @@ export default function Login() {
             type="submit"
             disabled={loading}
             className={`w-full py-4 rounded-xl text-lg font-semibold transition transform ${
-              loading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-sky hover:bg-sky-dark text-white hover:shadow-xl hover:scale-[1.02]'
+              loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-sky hover:bg-sky-dark text-white hover:shadow-xl hover:scale-[1.02]'
             }`}
           >
-            {loading ? (
-              <span className="flex items-center justify-center gap-3">
-                Signing in...
-                <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              </span>
-            ) : (
-              'Sign In'
-            )}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 

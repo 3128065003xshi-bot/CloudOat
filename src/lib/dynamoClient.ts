@@ -1,6 +1,7 @@
 // src/lib/dynamoClient.ts
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { config } from '../config/env';
+import { unmarshall} from "@aws-sdk/util-dynamodb";
 
 export const dynamoClient = new DynamoDBClient({
   region: config.awsRegion,
@@ -21,18 +22,17 @@ export async function getClientProfile(email: string) {
 
   try {
     const result = await dynamoClient.send(new GetItemCommand(params));
+    
     if (!result.Item) return null;
 
-    return {
-      email: result.Item.email?.S,
-      password: result.Item.password?.S, // only used locally for demo
-      name: result.Item.name?.S,
-      phone: result.Item.phone?.S,
-      companyName: result.Item.companyName?.S,
-      // ... add more fields you need
-    };
+    // unmarshall turns { name: { S: "Maria" }, tokens: { N: "5000" } } 
+    // into { name: "Maria", tokens: 5000 } automatically.
+    return unmarshall(result.Item);
+    
   } catch (err) {
     console.error("DynamoDB error:", err);
     return null;
   }
 }
+
+
