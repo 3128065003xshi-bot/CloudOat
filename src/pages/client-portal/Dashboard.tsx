@@ -1,8 +1,8 @@
 // src/pages/client-portal/Dashboard.tsx
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { getClientProfile } from '../../lib/dynamoClient';
 import { motion } from 'framer-motion';
+import { config } from '../../config/env';
 
 export default function Dashboard() {
   const [profile, setProfile] = useState<any>(null);
@@ -19,20 +19,24 @@ export default function Dashboard() {
       }
 
       try {
-        const data = await getClientProfile(userEmail);
-        if (!data) {
-          setError('Profile not found. Please log in again.');
+        // Replace getClientProfile with a fetch call to your backend
+        const res = await fetch(`${config.apiUrl}/profile?email=${encodeURIComponent(userEmail)}`);
+        const data = await res.json();
+
+        if (!res.ok || !data.user) {
+          setError(data.error || 'Profile not found. Please log in again.');
+          localStorage.removeItem('userEmail'); // Clean up bad session
+          localStorage.removeItem('isLoggedIn');
           navigate('/login');
           return;
         }
 
-        // Debug: log exactly what we got from DB
-        console.log('Raw profile from DynamoDB:', data);
+        console.log('Raw profile from Backend:', data.user);
+        setProfile(data.user);
 
-        setProfile(data);
       } catch (err: any) {
         console.error('Dashboard fetch error:', err);
-        setError('Failed to load dashboard data. Please try again.');
+        setError('Failed to load dashboard data. Please check your connection.');
       } finally {
         setLoading(false);
       }
