@@ -73,7 +73,7 @@ export default function CurrentPlan() {
           {error}
         </div>
       )}
-      
+
       <header className="mb-10">
         <h1 className="text-4xl md:text-5xl font-bold text-oat-dark">Current Plan & Tokens</h1>
         <p className="text-sky-dark font-medium mt-2 tracking-wide uppercase text-sm">
@@ -91,12 +91,12 @@ export default function CurrentPlan() {
             <div className="bg-gradient-to-br from-cloud to-sky/5 p-8 border-b border-sky/10 flex justify-between items-center">
               <div>
                 <h2 className="text-3xl font-black text-oat-dark uppercase tracking-tight">
-                  {plan?.planName || 'Standard'}
+                  {plan?.planName || 'Plan Name Missing'}
                 </h2>
                 <p className="text-sky-dark font-bold mt-1">Tier Level: {profile?.role}</p>
               </div>
               <div className="text-right">
-                <p className="text-4xl font-black text-sky-dark">${plan?.price}</p>
+                <p className="text-4xl font-black text-sky-dark">${plan?.price ? String(plan.price) : '---'}</p>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Per Month</p>
               </div>
             </div>
@@ -106,6 +106,15 @@ export default function CurrentPlan() {
               <div>
                 <h3 className="text-sm font-bold text-oat uppercase tracking-widest mb-4">Service Inclusions</h3>
                 <ul className="space-y-3">
+                  {plan?.promoNote && (
+                      <li className="flex items-start gap-3 p-3 bg-green-50 border border-green-200 rounded-2xl animate-pulse-subtle">
+                        <div className="mt-1 w-2 h-2 rounded-full bg-green-500 shrink-0" />
+                        <div>
+                          <p className="text-xs font-black text-green-700 uppercase tracking-tighter">Limited Offer</p>
+                          <p className="text-sm font-bold text-green-600">{plan.promoNote}</p>
+                        </div>
+                      </li>
+                    )}
                   <li className="flex items-center gap-3 text-gray-700 font-medium text-sm">
                     <div className="w-2 h-2 rounded-full bg-sky" />
                     {plan?.leadsEstimated} Guaranteed Leads / mo
