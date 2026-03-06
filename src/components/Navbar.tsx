@@ -46,19 +46,27 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-10">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.href}
-                className="text-gray-700 hover:text-sky-dark font-medium transition-colors"
-              >
-                {link.name}
-              </Link>
-            ))}
-            <button className="bg-sky text-cloud px-6 py-3 rounded-full font-semibold hover:bg-sky-dark transition">
-              Get Started
-            </button>
-          </div>
+              {navLinks.map((link) => (
+                link.href.startsWith('#') ? (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-gray-700 hover:text-sky-dark font-medium transition-colors cursor-pointer"
+                  >
+                    {link.name}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    className="text-gray-700 hover:text-sky-dark font-medium transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                )
+              ))}
+              {/* Get Started Button remains same */}
+            </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
