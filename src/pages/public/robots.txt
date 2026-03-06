@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Specifically allow OpenAI's crawler
+User-agent: GPTBot
+Allow: /
+
+# Specifically allow ChatGPT's user-browser
+User-agent: ChatGPT-User
+Allow: /
+
+# Specifically allow Google's AI crawler
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://cloudoat.com/sitemap.xml
